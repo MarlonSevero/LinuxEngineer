@@ -16,7 +16,7 @@ sudo apt purge isc-dhcp-server -y
 sudo apt autoremove -y
 sudo rm -rf /etc/dhcp /var/lib/dhcp
 
-echo "📦 Instalando isc-dhcp-server..."
+echo "Instalando isc-dhcp-server..."
 sudo apt update
 sudo apt install isc-dhcp-server -y
 
@@ -43,7 +43,7 @@ echo "Testando configuração do DHCP..."
 sudo dhcpd -t
 
 if [ $? -eq 0 ]; then
-  echo "✅ Configuração OK. Iniciando o serviço..."
+  echo "Configuração OK. Iniciando o serviço..."
   sudo systemctl restart isc-dhcp-server
   sudo systemctl enable isc-dhcp-server
   sudo systemctl status isc-dhcp-server
