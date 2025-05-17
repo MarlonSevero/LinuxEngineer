@@ -1,38 +1,43 @@
 #!/bin/bash
-# Script para configurar OpenLDAP com slapd.conf e backend MDB
+
+# Script para configurar OpenLDAP com cn=config + migrationtools
+# Autor: Seu Mordomo do Batman 🦇
 
 set -e
 
-echo "==> Instalando pacotes necessários..."
-apt update && apt install slapd ldap-utils -y
+echo "==> Atualizando pacotes e instalando dependências..."
+export DEBIAN_FRONTEND=noninteractive
+apt update -y
+apt install slapd ldap-utils migrationtools -y
 
-echo "==> Copiando slapd.conf de exemplo..."
-cp -a /usr/share/doc/slapd/examples/slapd.conf /etc/ldap/
+echo "==> Reconfigurando slapd interativamente..."
+dpkg-reconfigure slapd
 
-echo "==> Por favor, edite o /etc/ldap/slapd.conf manualmente agora!"
-echo "    Comandos recomendados:"
-echo "    - Adicione 'moduleload back_mdb'"
-echo "    - Configure 'database mdb'"
-echo "    - Execute 'slappasswd' para gerar senha e coloque no rootpw"
-read -p "Pressione ENTER após editar o arquivo para continuar..."
+echo "==> Verificando estrutura base LDAP..."
+cat <<EOF > /tmp/base.ldif
+dn: ou=People,dc=asf,dc=com
+objectClass: organizationalUnit
+ou: People
 
-echo "==> Fazendo backup e recriando slapd.d..."
-mv /etc/ldap/slapd.d /var/backups/slapd.d.$(date +%s) || true
-mkdir -pv /etc/ldap/slapd.d
+dn: ou=Group,dc=asf,dc=com
+objectClass: organizationalUnit
+ou: Group
+EOF
 
-echo "==> Corrigindo permissões..."
-chown -R openldap:openldap /var/lib/ldap /etc/ldap/slapd.conf
+echo "==> Importando estrutura base (ou=People, ou=Group)..."
+ldapadd -x -D cn=admin,dc=asf,dc=com -W -f /tmp/base.ldif
 
-echo "==> Configurando slapd para usar slapd.conf..."
-sed -i '/^SLAPD_CONF/d' /etc/default/slapd
-echo 'SLAPD_CONF="/etc/ldap/slapd.conf"' >> /etc/default/slapd
-echo 'SLAPD_ARGS=""' >> /etc/default/slapd
+echo "==> Configurando migrationtools..."
+sed -i 's/\$DEFAULT_MAIL_DOMAIN.*/$DEFAULT_MAIL_DOMAIN = "asf.com";/' /usr/share/migrationtools/migrate_common.ph
+sed -i 's/\$DEFAULT_BASE.*/$DEFAULT_BASE = "dc=asf,dc=com";/' /usr/share/migrationtools/migrate_common.ph
 
-echo "==> Validando configuração com slaptest..."
-slaptest -f /etc/ldap/slapd.conf -F /etc/ldap/slapd.d
+echo "==> Gerando LDIF de usuários e grupos locais..."
+cd /usr/share/migrationtools
+./migrate_passwd.pl /etc/passwd > /tmp/users.ldif
+./migrate_group.pl /etc/group > /tmp/groups.ldif
 
-echo "==> Reiniciando serviço slapd..."
-systemctl restart slapd
-systemctl enable slapd
+echo "==> Importando usuários e grupos para o LDAP..."
+ldapadd -x -D cn=admin,dc=asf,dc=com -W -f /tmp/users.ldif
+ldapadd -x -D cn=admin,dc=asf,dc=com -W -f /tmp/groups.ldif
 
-echo "✅ OpenLDAP configurado com sucesso usando backend MDB e slapd.conf."
+echo "✅ OpenLDAP configurado com sucesso com estrutura base e dados locais!"
