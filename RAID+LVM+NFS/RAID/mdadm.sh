@@ -17,6 +17,7 @@ mkdir /mnt/dados          # Cria o diretório onde o array será montado.
 mkfs -t ext4 /dev/md0     # Formata o array com o sistema de arquivos EXT4.
 mount /dev/md0 /mnt/dados # Monta o array no diretório criado (/mnt/dados).
 
+mdadm --detail /dev/md0 --scan > /etc/mdadm/mdadm.conf #grava info
 
 #FAIL FLAG
 mdadm /dev/md0 --fail /dev/sdd

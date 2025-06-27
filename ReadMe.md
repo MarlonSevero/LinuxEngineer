@@ -6,20 +6,6 @@
 ![Status](https://img.shields.io/badge/status-Em%20Desenvolvimento-yellow)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
----
-
-## 📚 Sumário
-
-- [🔧 Servidores DNS](#-servidores-dns)
-- [🌐 Serviços Web em DMZ](#-serviços-web-em-dmz)
-- [📁 Compartilhamento de Arquivos](#-compartilhamento-de-arquivos)
-- [🔐 Segurança e Hardening](#-segurança-e-hardening)
-- [📂 Estrutura Recomendada](#-estrutura-recomendada)
-- [📌 Pré-requisitos](#-pré-requisitos)
-- [🧠 Considerações Finais]
-
----
-
 ## 🔧 Servidores DNS
 
 O DNS é responsável por traduzir nomes de domínio em endereços IP, sendo um componente essencial em redes.
@@ -43,9 +29,6 @@ A DMZ isola serviços públicos da rede interna, melhorando a segurança.
 - **HTTPS (TLS/SSL)**: Certificados digitais para tráfego seguro.
 - **SFTP (Secure FTP)**: Upload/download seguro via SSH.
 - **Nginx (Reverse Proxy)**: Balanceamento de carga, cache e SSL offloading.
-- **Postfix (MTA)**: Servidor de envio de e-mails confiável e leve.
-- **Webmail (ex: RainLoop, Roundcube)**: Acesso ao e-mail via navegador.
-
 ---
 
 ## 📁 Compartilhamento de Arquivos
@@ -53,12 +36,10 @@ A DMZ isola serviços públicos da rede interna, melhorando a segurança.
 Permite que múltiplos usuários e sistemas acessem dados de maneira segura e organizada.
 
 ### Serviços:
-- **PAM (Pluggable Authentication Modules)**: Modularidade para autenticação local.
 - **OpenLDAP**: Diretório centralizado de usuários e grupos.
 - **Clientes LDAP**: Sistemas integrados ao LDAP para login remoto.
 - **Samba 4**: Compartilhamento de arquivos entre Linux e Windows com suporte a AD.
 - **NFS (Network File System)**: Compartilhamento de diretórios entre sistemas Unix/Linux via rede.
-
 ---
 
 ## 🔐 Segurança e Hardening
